@@ -8,7 +8,6 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
 import { Loader } from './Loader/Loader';
-// import {toast} from "react-toastify";
 
 export class App extends React.Component {
   state = {
@@ -28,10 +27,6 @@ export class App extends React.Component {
       prevState.page !== this.state.page
     ) {
       this.setState({ collection: [] });
-      // console.log("prevProps.query", prevProps.query);
-      console.log('this.state.query', this.state.query);
-      console.log('prevState.query ', prevState.query);
-      // console.log("this.props.query ", this.props.query);
       this.fetchImages();
     }
   }
@@ -81,13 +76,11 @@ export class App extends React.Component {
   closeModal = () => {
     this.setState({ img: '' });
   };
-  
 
   render() {
     return (
       <div className={css.App}>
         <Searchbar onSubmit={this.HandleSearchbarSubmit} />
-        <ToastContainer autoClose={3000} />
         {this.state.loading && <Loader />}
         {this.state.collection.length > 0 && (
           <ImageGallery
@@ -103,19 +96,27 @@ export class App extends React.Component {
             onCloses={this.closeModal}
           />
         )}
-        <ToastContainer />
+
         {this.state.collection.length > 11 && (
           <Button onClickLoadMore={this.onClickLoadMore}>Load more</Button>
         )}
-        
-        {this.state.collection.length === 0 && this.state.query
-          ? <div className={css.info}>
-            <h3>Something went wrong - there are no result with` ${this.state.query} `</h3>
-            <img  width="295" src="https://static5.depositphotos.com/1001911/508/v/950/depositphotos_5080703-stock-illustration-sad-emoticon.jpg" alt="sad smile" />
+
+        {this.state.collection.length === 0 &&
+        this.state.query &&
+        this.state.page === 1 ? (
+          <div className={css.info}>
+            <h3>
+              Something went wrong - there are no result with` $
+              {this.state.query} `
+            </h3>
+            <img
+              width="295"
+              src="https://static5.depositphotos.com/1001911/508/v/950/depositphotos_5080703-stock-illustration-sad-emoticon.jpg"
+              alt="sad smile"
+            />
           </div>
-          
-          : null}
-        {/* <ToastContainer autoClose={3000} /> */}
+        ) : null}
+        <ToastContainer autoClose={3000} />
       </div>
     );
   }

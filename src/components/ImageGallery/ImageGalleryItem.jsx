@@ -28,30 +28,6 @@ ImageGalleryItem.propTypes = {
   setCurrentImg: PropTypes.func.isRequired,
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //   state = {
 //     pokemon: null,
 //     // loading: false,
