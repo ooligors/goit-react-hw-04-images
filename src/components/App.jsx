@@ -103,8 +103,9 @@ export class App extends React.Component {
 
         {this.state.collection.length === 0 &&
         this.state.query &&
-        this.state.page === 1 ? (
-          <div className={css.info}>
+          this.state.page === 1 &&
+          !this.state.loading
+          ? (     <div className={css.info}>
             <h3>
               Something went wrong - there are no result with` $
               {this.state.query} `
