@@ -26,7 +26,7 @@ export class App extends React.Component {
       prevState.query !== this.state.query ||
       prevState.page !== this.state.page
     ) {
-      this.setState({ collection: [] });
+      
       this.fetchImages();
     }
   }
