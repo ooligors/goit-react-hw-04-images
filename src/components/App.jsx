@@ -81,7 +81,7 @@ export class App extends React.Component {
     return (
       <div className={css.App}>
         <Searchbar onSubmit={this.HandleSearchbarSubmit} />
-        {this.state.loading && <Loader />}
+        
         {this.state.collection.length > 0 && (
           <ImageGallery
             collection={this.state.collection}
@@ -89,6 +89,7 @@ export class App extends React.Component {
             setCurrentImg={this.setCurrentImg}
           />
         )}
+        {this.state.loading && <Loader />}
         {this.state.img && (
           <Modal
             img={this.state.img}
