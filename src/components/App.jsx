@@ -8,118 +8,85 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
 import { Loader } from './Loader/Loader';
+import { useEffect, useState, useCallback } from 'react';
 
-export class App extends React.Component {
-  state = {
-    page: 1,
-    query: '',
-    loading: false,
-    collection: [],
-    error: null,
-    // status: 'idle',
-    img: '',
-    showModal: false,
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [collection, setCollection] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [img, setLargeImg] = useState('');
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.query !== this.state.query ||
-      prevState.page !== this.state.page
-    ) {
-      
-      this.fetchImages();
-    }
-  }
+  const fetchImages = useCallback(() => {
+    setLoading(true);
 
-  fetchImages = () => {
-    this.setState({ loading: true });
-    const { page, query } = this.state;
     getImages(query, page)
       .then(data => {
-        console.log(data);
-        if (data.data.hits.length === 0 && this.state.query) {
-          this.setState({ status: 'rejected' });
-        }
-        console.log(data.data.hits);
-        this.setState(prevState => ({
-          collection: [...prevState.collection, ...mapperImgs(data.data.hits)],
-          // status: 'resolved',
-          loading: false,
-        }));
+        setCollection(prevCollection => [
+          ...prevCollection,
+          ...mapperImgs(data.data.hits),
+        ]);
+        setLoading(false);
       })
+      .catch(error => this.setState({ error }));
+  }, [query, page]);
 
-      .catch(error => this.setState({ error, status: 'rejected' }));
-  };
+  useEffect(() => {
+    fetchImages();
+  }, [fetchImages]);
 
-  HandleSearchbarSubmit = query => {
-    this.setState({ query, collection: [], page: 1, loading: true });
+  const HandleSearchbarSubmit = query => {
+    setQuery(query);
+    setPage(1);
+    setCollection([]);
+    setLoading(true);
   };
-  setCurrentImg = url => {
-    this.setState({ img: url });
+  const setCurrentImg = url => {
+    setLargeImg(url);
   };
-  toggleModal = () => {
-    if (this.state.showModal) {
+  const toggleModal = () => {
+    if (showModal) {
     }
-
-    this.setState({
-      showModal: !this.state.showModal,
-    });
+    setShowModal(!showModal);
   };
-  onClickLoadMore = () => {
-    console.log('this.state.page', this.state.page);
-    console.log('prevState.page', this.state.page + 1);
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const onClickLoadMore = () => {
+    setPage(page + 1);
   };
 
-  closeModal = () => {
-    this.setState({ img: '' });
+  const closeModal = () => {
+    setLargeImg('');
   };
 
-  render() {
-    return (
-      <div className={css.App}>
-        <Searchbar onSubmit={this.HandleSearchbarSubmit} />
-        
-        {this.state.collection.length > 0 && (
-          <ImageGallery
-            collection={this.state.collection}
-            onLiClick={this.toggleModal}
-            setCurrentImg={this.setCurrentImg}
+  return (
+    <div className={css.App}>
+      <Searchbar onSubmit={HandleSearchbarSubmit} />
+
+      {collection.length > 0 && (
+        <ImageGallery
+          collection={collection}
+          onLiClick={toggleModal}
+          setCurrentImg={setCurrentImg}
+        />
+      )}
+      {loading && <Loader />}
+      {img && <Modal img={img} onClose={toggleModal} onCloses={closeModal} />}
+
+      {collection.length > 11 && (
+        <Button onClickLoadMore={onClickLoadMore}>Load more</Button>
+      )}
+
+      {collection.length === 0 && query && page === 1 && !loading ? (
+        <div className={css.info}>
+          <h3>Something went wrong - there are no result with` ${query} `</h3>
+          <img
+            width="295"
+            src="https://static5.depositphotos.com/1001911/508/v/950/depositphotos_5080703-stock-illustration-sad-emoticon.jpg"
+            alt="sad smile"
           />
-        )}
-        {this.state.loading && <Loader />}
-        {this.state.img && (
-          <Modal
-            img={this.state.img}
-            onClose={this.toggleModal}
-            onCloses={this.closeModal}
-          />
-        )}
-
-        {this.state.collection.length > 11 && (
-          <Button onClickLoadMore={this.onClickLoadMore}>Load more</Button>
-        )}
-
-        {this.state.collection.length === 0 &&
-        this.state.query &&
-          this.state.page === 1 &&
-          !this.state.loading
-          ? (     <div className={css.info}>
-            <h3>
-              Something went wrong - there are no result with` $
-              {this.state.query} `
-            </h3>
-            <img
-              width="295"
-              src="https://static5.depositphotos.com/1001911/508/v/950/depositphotos_5080703-stock-illustration-sad-emoticon.jpg"
-              alt="sad smile"
-            />
-          </div>
-        ) : null}
-        <ToastContainer autoClose={3000} />
-      </div>
-    );
-  }
-}
+        </div>
+      ) : null}
+      <ToastContainer autoClose={3000} />
+    </div>
+  );
+};
