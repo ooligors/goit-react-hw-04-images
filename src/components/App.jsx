@@ -8,7 +8,7 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
 import { Loader } from './Loader/Loader';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState,  } from 'react';
 
 export const App = () => {
   const [query, setQuery] = useState('');
@@ -17,8 +17,15 @@ export const App = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [img, setLargeImg] = useState('');
+  
 
-  const fetchImages = useCallback(() => {
+  
+
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+    const fetchImages = () => {
     setLoading(true);
 
     getImages(query, page)
@@ -29,12 +36,10 @@ export const App = () => {
         ]);
         setLoading(false);
       })
-      .catch(error => this.setState({ error }));
-  }, [query, page]);
-
-  useEffect(() => {
+      .catch(error => console.log("error", error));
+  };
     fetchImages();
-  }, [fetchImages]);
+  }, [page, query]);
 
   const HandleSearchbarSubmit = query => {
     setQuery(query);
